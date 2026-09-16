@@ -8,6 +8,7 @@ public class RestaurantRunner {
     private String username;
     private String preferredPrimary;
     private String preferredSecondary;
+    private String lastCommand;
     public ArrayList<Restaurant> restaurants = new ArrayList<>();
 
     // Begin initializing restaurants
@@ -34,6 +35,7 @@ public class RestaurantRunner {
         System.out.println("Welcome! Can I have your name?");
         this.username = sc.nextLine();
         System.out.println(ChronoUnit.HOURS.between(midnight, now) + " hours since midnight");
+
         if (ChronoUnit.HOURS.between(midnight, now) <= 11) { // Midnight~11AM
             System.out.println("Hi, " + username + "! Good Morning!");
         } else if (ChronoUnit.HOURS.between(midnight, now) <= 16) { // 12PM~4PM
@@ -42,6 +44,14 @@ public class RestaurantRunner {
             System.out.println("Hi, " + username + "! Good Evening!");
         }
         
+    }
+
+    public void pickPrimary() {
+        System.out.println("""
+                Type the number to select your favorite category of cuisine!
+                1 ~ East Asian (Chinese, Japanese, Korean, Vietnamese)
+                2 ~ 
+                """);
     }
 
     public void initializeRestaurants() {
@@ -73,5 +83,6 @@ public class RestaurantRunner {
         RestaurantRunner r = new RestaurantRunner();
         r.initializeRestaurants();
         r.greet();
+        
     }
 }
