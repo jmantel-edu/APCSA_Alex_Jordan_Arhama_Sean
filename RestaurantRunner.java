@@ -10,6 +10,7 @@ public class RestaurantRunner {
     private String preferredSecondary;
     private String lastCommand;
     public ArrayList<Restaurant> restaurants = new ArrayList<>();
+    public Scanner sc = new Scanner(System.in);
 
     // Begin initializing restaurants
     // Restaurant(String name, String bio, String address, int priceRange, String primaryCategory, String secondaryCategory)
@@ -31,7 +32,7 @@ public class RestaurantRunner {
         LocalTime midnight = LocalTime.MIDNIGHT;
         LocalTime now = LocalTime.now(ZoneId.of("America/New_York"));
 
-        Scanner sc = new Scanner(System.in);
+        
         System.out.println("Welcome! Can I have your name?");
         this.username = sc.nextLine();
         System.out.println(ChronoUnit.HOURS.between(midnight, now) + " hours since midnight");
@@ -46,12 +47,52 @@ public class RestaurantRunner {
         
     }
 
+    public void pickPriceRange() {
+        System.out.println("""
+                What's your price range?
+                0 ~ Cheap; under $20 per person
+                1 ~ Moderate; between $20 and $30 per person
+                2 ~ Expensive; over $30 per person
+
+                x ~ Quit program
+                """);
+    }
+
     public void pickPrimary() {
         System.out.println("""
-                Type the number to select your favorite category of cuisine!
+                What food are you thinking today?
                 1 ~ East Asian (Chinese, Japanese, Korean, Vietnamese)
-                2 ~ 
+                2 ~ South Asian (Indian/Pakistani, African, Turkish/Greek, Middle Eastern)
+                3 ~ American (Mexican, American, Brazilian, Central American)
+                4 ~ European (Italian, French, Spanish, British/Irish)
+                
+                b ~ Back to price range select
+                x ~ Quit program
                 """);
+    }
+
+    
+    public void pickSecondaryEA() {
+
+    }
+
+    public void pickSecondarySA() {
+
+    }
+
+    public void pickSecondaryAM() {
+
+    }
+
+    public void pickSecondaryEU() {
+
+    }
+
+    public void quitProgram() {
+        sc.close();
+        System.out.println("Thanks for using this program! Bon appetit!");
+        System.exit(0);
+
     }
 
     public void initializeRestaurants() {
@@ -86,7 +127,7 @@ public class RestaurantRunner {
     restaurants.add(new Restaurant("Biryani Maxx", "590 E Chatham St Ste 102, Cary, NC 27511", "Informal eatery offering a typical range of Indian appetizers, meat & veggie entrees & rice dishes.", 1, "South Asian", "Indian / Pakistani"));
 
     // African
-    restaurants.add(new Restaurant("Hady’s Restaurant | International Cuisine", "717 E Martin St Ste 199, Raleigh, NC 27601", "Relaxed locale whipping up African & international offerings in simple surrounds, plus delivery.", 1, "South Asian", "African"));
+    restaurants.add(new Restaurant("Hady's Restaurant | International Cuisine", "717 E Martin St Ste 199, Raleigh, NC 27601", "Relaxed locale whipping up African & international offerings in simple surrounds, plus delivery.", 1, "South Asian", "African"));
     restaurants.add(new Restaurant("Nafkot Ethiopian Restaurant & Bar", "2109 Avent Ferry Rd #146, Raleigh, NC 27606", "Colorful venue offering wots & tibs, plus veggie options, in a relaxed atmosphere.", 0, "South Asian", "African"));
 
     // Turkish / Greek
@@ -133,14 +174,14 @@ public class RestaurantRunner {
     // Italian
     restaurants.add(new Restaurant("Cafe Babymoon", "100 Jerusalem Dr #106, Morrisville, NC 27560", "Italian fare & wines from a smart-casual spot with outdoor patio & delivery service to area hotels.", 1, "European", "Italian"));
     restaurants.add(new Restaurant("Bongiorno & Son Italian Specialties", "2400 W. Terminal Blvd, Morrisville, NC 27560", "Italian deli with sandwiches, coffee, and various Italian and Italian-American items.", 0, "European", "Italian"));
-    restaurants.add(new Restaurant("Bambino’s Pizza", "4129 Davis Dr, Morrisville, NC 27560", "New York-style pizza place with a variety of other offerings from salads to hero subs.", 0, "European", "Italian"));
+    restaurants.add(new Restaurant("Bambino's Pizza", "4129 Davis Dr, Morrisville, NC 27560", "New York-style pizza place with a variety of other offerings from salads to hero subs.", 0, "European", "Italian"));
     restaurants.add(new Restaurant("La Grassa Pastifico", "908 NE Maynard Rd, Cary, NC 27513", "Authentic style Italian cuisine with many different types of pasta dishes.", 2, "European", "Italian"));
     restaurants.add(new Restaurant("Tazza Kitchen Stone Creek Village", "600 Ledgestone Way, Cary, NC 27519", "Outlet offering wood-fired pies, regional wines & local brews in a warm setting with a bar.", 1, "European", "Italian"));
 
     // British / Irish
     restaurants.add(new Restaurant("Trali Irish Pub & Restaurant", "10370 Moncreiffe Rd #109, Raleigh, NC 27617", "An Irish pub with bar staples & daily specials from a carving table, plus a patio & WiFi.", 1, "European", "British / Irish"));
-    restaurants.add(new Restaurant("Bru’s Public House", "5433 Wade Park Blvd #100, Raleigh, NC 27607", "An Irish pub with a large selection of pub food, burgers, and craft beers.", 1, "European", "British / Irish"));
-    restaurants.add(new Restaurant("Doherty’s Irish Pub & Restaurant", "1979 High House Rd, Cary, NC 27519", "Comfortable bar with elevated Irish food, multiple beers on tap, large televisions & live music.", 1, "European", "British / Irish"));
+    restaurants.add(new Restaurant("Bru's Public House", "5433 Wade Park Blvd #100, Raleigh, NC 27607", "An Irish pub with a large selection of pub food, burgers, and craft beers.", 1, "European", "British / Irish"));
+    restaurants.add(new Restaurant("Doherty's Irish Pub & Restaurant", "1979 High House Rd, Cary, NC 27519", "Comfortable bar with elevated Irish food, multiple beers on tap, large televisions & live music.", 1, "European", "British / Irish"));
 
     // French
     restaurants.add(new Restaurant("Bluebird", "601 Meadowmont Village Cir, Chapel Hill, NC 27517", "French restaurant with a wide selection of items, recommended for special occasions. (Reservation required)", 2, "European", "French"));
