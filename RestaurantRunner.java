@@ -419,13 +419,16 @@ public class RestaurantRunner {
             }
         } else {
 
+            int restaurantIndex = 0;
+
             System.out.println("We found " + this.foundRestaurants.size() + " restaurants for you:\n");
 
             for (Restaurant i : this.foundRestaurants) {
-                System.out.println(i.toString()); // Print out the short view of each restaurant
+                restaurantIndex++;
+                System.out.println(restaurantIndex + " ~ " + i.toString()); // Print out the short view of each restaurant
             }
 
-            System.out.println("\nPick a restaurant by typing a number (e.g. the first restaurant in the list is 1), and we'll show you more details!");
+            System.out.println("\nPick a restaurant by typing a number, and we'll show you more details!");
             System.out.println("""
                 If you don't think any of these places fit you, you can:
 
@@ -451,7 +454,7 @@ public class RestaurantRunner {
                 }
                 
             } catch (Exception e) {
-                System.out.println("Invalid command! Please enter a valid command.");
+                System.out.println("Invalid command! Please enter a number within the range of restaurants.");
             }
 
         }
@@ -475,6 +478,7 @@ public class RestaurantRunner {
                 this.isRunning = false;
                 break;
             case 'b':
+                System.out.println("Returning to restaurant list...");
                 break;
             default:
                 System.out.println("Invalid command! Returning to restaurant list...");
