@@ -14,6 +14,7 @@ public class RestaurantRunner {
     private String preferredSecondary = "";
     private char lastCommand; // Commands only need to be one character long anyways
     private boolean isRunning = true;
+    private boolean reselectRestaurantsFlag = false;
 
     public ArrayList<Restaurant> restaurants = new ArrayList<>(); 
     public ArrayList<Restaurant> foundRestaurants = new ArrayList<>(); // Cleared and rebuilt every time a restaurant selection function (pickRestaurants, pickRandomRestaurant, pickAllRestaurants) is ran
@@ -132,6 +133,8 @@ public class RestaurantRunner {
     public void pickRestaurantsBySecondary() {
         ArrayList<Restaurant> myOutput = new ArrayList<>();
 
+        System.out.println("Preferred Price Range: " + this.preferredPriceRange);
+
         for (Restaurant i : this.restaurants) {
             if (i.getSecondary().equals(this.preferredSecondary) && i.getPriceRangeInt() <= this.preferredPriceRange) {
                 myOutput.add(i);
@@ -174,7 +177,7 @@ public class RestaurantRunner {
         LocalTime now = LocalTime.now(ZoneId.of("America/New_York"));
 
         
-        System.out.println("Welcome! Can I have your name?");
+        System.out.print("Welcome! Can I have your name? ");
         this.username = sc.nextLine();
 
         if (ChronoUnit.HOURS.between(midnight, now) <= 11) { // Midnight~11AM
@@ -194,16 +197,13 @@ public class RestaurantRunner {
                 1 ~ Moderate; between $20 and $30 per person
                 2 ~ Expensive; over $30 per person
 
-                a ~ Any; Include all price ranges!
                 x ~ Quit program
                 """);
                 takeNewCommand();
 
                 if (this.lastCommand >= '0' && this.lastCommand <= '2') {
                     this.preferredPriceRange = this.lastCommand - '0'; // 48 (number 0) - 48 = 0; 49 (number 1) - 48 = 1; 50 (number 2) - 48 = 2
-                } else if (this.lastCommand == 'a') {
-                    this.preferredPriceRange = 3; // All price ranges below the preferred price range are also considered when choosing a restaurant,                                  
-                } else {                          // so a price range of 3 will check all the price ranges from 0 to 2
+                } else {                          
                     System.out.println("Invalid price range. Please type a valid price range!");
                 }
     }
@@ -238,8 +238,8 @@ public class RestaurantRunner {
 
         if (this.lastCommand == 'r') {
             // Use dummy values
-            this.preferredPrimary = "abc";
-            this.preferredSecondary = "xyz";
+            this.preferredPrimary = "RANDOM";
+            this.preferredSecondary = "RANDOM";
         }
 
         }
@@ -257,8 +257,6 @@ public class RestaurantRunner {
 
                 r ~ I'm feeling lucky -- show me a random restaurant within this category
 
-                a ~ Show me all the restaurants in this category!
-
                 b ~ Reselect the primary category
                 """);
 
@@ -272,6 +270,8 @@ public class RestaurantRunner {
         case 'r' -> this.pickRandomRestaurantInPrimary();
 
         case 'b' -> this.preferredPrimary = "";
+
+        default -> System.out.println("Not a valid command! Please select a category.");
     }
 
     if (this.lastCommand == 'r') {
@@ -292,8 +292,6 @@ public class RestaurantRunner {
 
                 r ~ I'm feeling lucky -- show me a random restaurant within this category
 
-                a ~ Show me all the restaurants in this category!
-
                 b ~ Reselect the primary category
                 """);
 
@@ -306,9 +304,9 @@ public class RestaurantRunner {
 
         case 'r' -> this.pickRandomRestaurantInPrimary();
 
-        // case 'a' -> (Pick all restaurants);
-
         case 'b' -> this.preferredPrimary = "";
+
+        default -> System.out.println("Not a valid command! Please select a category.");
     }
 
     if (this.lastCommand == 'r') {
@@ -329,8 +327,6 @@ public class RestaurantRunner {
 
                 r ~ I'm feeling lucky -- show me a random restaurant within this category
 
-                a ~ Show me all the restaurants in this category!
-
                 b ~ Reselect the primary category
                 """);
 
@@ -344,6 +340,8 @@ public class RestaurantRunner {
         case 'r' -> this.pickRandomRestaurantInPrimary();
 
         case 'b' -> this.preferredPrimary = "";
+
+        default -> System.out.println("Not a valid command! Please select a category.");
     }
 
     if (this.lastCommand == 'r') {
@@ -362,11 +360,9 @@ public class RestaurantRunner {
                 3 ~ Spanish
                 4 ~ British and Irish
 
-                r ~ I'm feeling lucky -- show me a random restaurant within this category
+                r ~ I'm feeling lucky -- show me a random restaurant within this region
 
-                a ~ Show me all the restaurants in this category!
-
-                b ~ Reselect the primary category
+                b ~ Reselect region
                 """);
 
         takeNewCommand();
@@ -379,6 +375,8 @@ public class RestaurantRunner {
             case 'r' -> this.pickRandomRestaurantInPrimary();
 
             case 'b' -> this.preferredPrimary = "";
+
+            default -> System.out.println("Not a valid command! Please select a category.");
         }
 
     if (this.lastCommand == 'r') {
@@ -396,32 +394,42 @@ public class RestaurantRunner {
                 Would you like to...
 
                 1 ~ Change price range
-                2 ~ Return to primary category selection
-                3 ~ Return to secondary category selection
+                2 ~ Return to region category selection
+                3 ~ Return to cuisine category selection
+                4 ~ Ignore my price range and search again
+
+                r ~ Pick a random restaurant
+                p ~ Pick a random restaurant in my region
+
+                x ~ Quit program
             """);
 
             takeNewCommand();
 
             switch (this.lastCommand) {
-                case '1':
-                    this.preferredPriceRange = -1;
-                    break;
-                case '2':
+                case '1' -> {
+                    pickPriceRange();
+                    this.reselectRestaurantsFlag = true;
+                }
+                case '2' -> {
                     this.preferredSecondary = "";
                     this.preferredPrimary = "";
-                    break;
-                case '3':
-                    this.preferredSecondary = "";
-                    break;
-                default:
-                    System.out.println("Invalid command; please type 1, 2, or 3 to select an action");
-                    break;
+                }
+                case '3' -> this.preferredSecondary = "";
+                case '4' -> {
+                    this.preferredPriceRange = 2;
+                    pickRestaurantsBySecondary();
+                }
+                case 'r' -> this.pickRandomRestaurant();
+                case 'p' -> this.pickRandomRestaurantInPrimary();
+                case 'x' -> this.isRunning = false;
+                default -> System.out.println("Invalid command; please type a given letter to select an action");
             }
         } else {
 
             int restaurantIndex = 0;
 
-            System.out.println("We found " + this.foundRestaurants.size() + " restaurants for you:\n");
+            System.out.println("We found " + this.foundRestaurants.size() + " restaurant(s) for you:\n");
 
             for (Restaurant i : this.foundRestaurants) {
                 restaurantIndex++;
@@ -433,8 +441,12 @@ public class RestaurantRunner {
                 If you don't think any of these places fit you, you can:
 
                 a ~ Change price range
-                b ~ Return to primary category selection
-                c ~ Return to secondary category selection
+                b ~ Return to region selection
+                c ~ Return to cuisine selection
+
+                r ~ Select a random restaurant (The current list of restaurants will disappear!)
+
+                x ~ Quit program
             """);
 
             takeNewCommand();
@@ -444,12 +456,15 @@ public class RestaurantRunner {
                     examineRestaurant(foundRestaurants.get(lastCommand - '1'));
                 } else {
                     switch (this.lastCommand) {
-                        case 'a' -> this.preferredPriceRange = -1;
+                        case 'a' -> {pickPriceRange();
+                    this.reselectRestaurantsFlag = true;}
                         case 'b' -> {
                             this.preferredSecondary = "";
                             this.preferredPrimary = "";
                                 }
                         case 'c' -> this.preferredSecondary = "";
+                        case 'r' -> this.pickRandomRestaurant();
+                        case 'x' -> this.isRunning = false;
                     }
                 }
                 
@@ -467,17 +482,17 @@ public class RestaurantRunner {
         System.out.println("""
             Sounds good?
 
-            a ~ Yes, that's great!
-            b ~ No, back to restaurant list
+            y ~ Yes, that's great!
+            n ~ No, back to restaurant list
         """);
 
         takeNewCommand();
 
         switch (this.lastCommand) {
-            case 'a':
+            case 'y':
                 this.isRunning = false;
                 break;
-            case 'b':
+            case 'n':
                 System.out.println("Returning to restaurant list...");
                 break;
             default:
@@ -515,6 +530,11 @@ public class RestaurantRunner {
             }
 
             if (!r.isRunning) break;
+
+            if (r.reselectRestaurantsFlag) { // Force reselecting restaurants in the main loop rather than as a result of a method
+                r.pickRestaurantsBySecondary();
+                r.reselectRestaurantsFlag = false;
+            }
 
             r.showSelectedRestaurants();
 
