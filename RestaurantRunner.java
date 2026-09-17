@@ -2,98 +2,22 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
+
+
 
 public class RestaurantRunner {
     private String username;
-    private String preferredPrimary;
-    private String preferredSecondary;
-    private String lastCommand;
-    public ArrayList<Restaurant> restaurants = new ArrayList<>();
+    private int preferredPriceRange = -1;
+    private String preferredPrimary = "";
+    private String preferredSecondary = "";
+    private char lastCommand; // Commands only need to be one character long anyways
+    private boolean isRunning = true;
+
+    public ArrayList<Restaurant> restaurants = new ArrayList<>(); 
+    public ArrayList<Restaurant> foundRestaurants = new ArrayList<>(); // Cleared and rebuilt every time a restaurant selection function (pickRestaurants, pickRandomRestaurant, pickAllRestaurants) is ran
     public Scanner sc = new Scanner(System.in);
-
-    // Begin initializing restaurants
-    // Restaurant(String name, String bio, String address, int priceRange, String primaryCategory, String secondaryCategory)
-    
-    // End initializing restaurants
-
-/*     
-    public Restaurant pickRandomRestaurant() {
-        return("PLACEHOLDER");
-    } 
-
-    public ArrayList<Restaurant> pickRestaurants(String primary, String secondary, int priceRange) {
-        return("PLACEHOLDER")
-    }
-        
-*/
-
-    public void greet() {
-        LocalTime midnight = LocalTime.MIDNIGHT;
-        LocalTime now = LocalTime.now(ZoneId.of("America/New_York"));
-
-        
-        System.out.println("Welcome! Can I have your name?");
-        this.username = sc.nextLine();
-        System.out.println(ChronoUnit.HOURS.between(midnight, now) + " hours since midnight");
-
-        if (ChronoUnit.HOURS.between(midnight, now) <= 11) { // Midnight~11AM
-            System.out.println("Hi, " + username + "! Good Morning!");
-        } else if (ChronoUnit.HOURS.between(midnight, now) <= 16) { // 12PM~4PM
-            System.out.println("Hi, " + username + "! Good Afternoon!");
-        } else { // 5PM and later
-            System.out.println("Hi, " + username + "! Good Evening!");
-        }
-        
-    }
-
-    public void pickPriceRange() {
-        System.out.println("""
-                What's your price range?
-                0 ~ Cheap; under $20 per person
-                1 ~ Moderate; between $20 and $30 per person
-                2 ~ Expensive; over $30 per person
-
-                x ~ Quit program
-                """);
-    }
-
-    public void pickPrimary() {
-        System.out.println("""
-                What food are you thinking today?
-                1 ~ East Asian (Chinese, Japanese, Korean, Vietnamese)
-                2 ~ South Asian (Indian/Pakistani, African, Turkish/Greek, Middle Eastern)
-                3 ~ American (Mexican, American, Brazilian, Central American)
-                4 ~ European (Italian, French, Spanish, British/Irish)
-                
-                b ~ Back to price range select
-                x ~ Quit program
-                """);
-    }
-
-    
-    public void pickSecondaryEA() {
-
-    }
-
-    public void pickSecondarySA() {
-
-    }
-
-    public void pickSecondaryAM() {
-
-    }
-
-    public void pickSecondaryEU() {
-
-    }
-
-    public void quitProgram() {
-        sc.close();
-        System.out.println("Thanks for using this program! Bon appetit!");
-        System.exit(0);
-
-    }
 
     public void initializeRestaurants() {
     // ==================== EAST ASIAN ====================
@@ -194,11 +118,404 @@ public class RestaurantRunner {
     restaurants.add(new Restaurant("Taberna Tapas", "325 W Main St, Durham, NC 27701", "Spanish restaurant serving small & large plates, including paella, along with cocktails & wine.", 2, "European", "Spanish"));
 }
 
+/*     
+    public Restaurant pickRandomRestaurant() {
+        return("PLACEHOLDER");
+    } 
+
+    
+        
+*/
+
+    // Pick Restaurants -- for Primary and Secondary Categories OR Primary Category only
+
+    public void pickRestaurantsBySecondary() {
+        ArrayList<Restaurant> myOutput = new ArrayList<>();
+
+        for (Restaurant i : this.restaurants) {
+            if (i.getSecondary().equals(this.preferredSecondary) && i.getPriceRangeInt() <= this.preferredPriceRange) {
+                myOutput.add(i);
+            }
+        }
+
+        this.foundRestaurants = myOutput;
+    }
+
+    public void pickRandomRestaurant() {
+        ArrayList<Restaurant> myOutput = new ArrayList<>();
+
+        Random r = new Random();
+        Restaurant randomRestaurant = this.restaurants.get(r.nextInt(this.restaurants.size())); // Picks a random restaurant based on the size of the arraylist of restaurants
+
+        myOutput.add(randomRestaurant);
+        this.foundRestaurants = myOutput;
+    }
+
+    public void pickRandomRestaurantInPrimary() {
+        ArrayList<Restaurant> myOutput = new ArrayList<>();
+
+        Random r = new Random();
+        Restaurant randomRestaurant = this.restaurants.get(r.nextInt(this.restaurants.size()));
+
+        while (!randomRestaurant.getPrimary().equals(this.preferredPrimary)) {
+            randomRestaurant = this.restaurants.get(r.nextInt(this.restaurants.size())); // Keep trying until the primary category matches
+        }
+
+        myOutput.add(randomRestaurant);
+        this.foundRestaurants = myOutput;
+    }
+
+    public void takeNewCommand() {
+        this.lastCommand = sc.next().toLowerCase().charAt(0);
+    }
+
+    public void greet() {
+        LocalTime midnight = LocalTime.MIDNIGHT;
+        LocalTime now = LocalTime.now(ZoneId.of("America/New_York"));
+
+        
+        System.out.println("Welcome! Can I have your name?");
+        this.username = sc.nextLine();
+
+        if (ChronoUnit.HOURS.between(midnight, now) <= 11) { // Midnight~11AM
+            System.out.println("Hi, " + username + "! Good Morning!");
+        } else if (ChronoUnit.HOURS.between(midnight, now) <= 16) { // 12PM~4PM
+            System.out.println("Hi, " + username + "! Good Afternoon!");
+        } else { // 5PM and later
+            System.out.println("Hi, " + username + "! Good Evening!");
+        }
+        
+    }
+
+    public void pickPriceRange() {
+        System.out.println("""
+                What's your price range? (Note: selecting a price range will also include the price ranges below it.)
+                0 ~ Cheap; under $20 per person
+                1 ~ Moderate; between $20 and $30 per person
+                2 ~ Expensive; over $30 per person
+
+                a ~ Any; Include all price ranges!
+                x ~ Quit program
+                """);
+                takeNewCommand();
+
+                if (this.lastCommand >= '0' && this.lastCommand <= '2') {
+                    this.preferredPriceRange = this.lastCommand - '0'; // 48 (number 0) - 48 = 0; 49 (number 1) - 48 = 1; 50 (number 2) - 48 = 2
+                } else if (this.lastCommand == 'a') {
+                    this.preferredPriceRange = 3; // All price ranges below the preferred price range are also considered when choosing a restaurant,                                  
+                } else {                          // so a price range of 3 will check all the price ranges from 0 to 2
+                    System.out.println("Invalid price range. Please type a valid price range!");
+                }
+    }
+
+    public void pickPrimary() {
+        System.out.println("""
+                What food are you thinking today?
+                1 ~ East Asian (Chinese, Japanese, Korean, Vietnamese)
+                2 ~ South Asian (Indian/Pakistani, African, Turkish/Greek, Middle Eastern)
+                3 ~ American (Mexican, American, Brazilian, Central American)
+                4 ~ European (Italian, French, Spanish, British/Irish)
+
+                r ~ I'm feeling lucky -- show me a random restaurant in my price range!
+                
+                b ~ Back to price range select
+                x ~ Quit program
+                """);
+                
+        takeNewCommand();
+
+        switch (this.lastCommand) {
+                case '1' -> this.preferredPrimary = "East Asian";
+                case '2' -> this.preferredPrimary = "South Asian";
+                case '3' -> this.preferredPrimary = "American";
+                case '4' -> this.preferredPrimary = "European";
+
+                case 'r' -> this.pickRandomRestaurant();
+                
+                case 'b' -> this.preferredPriceRange = -1;
+                case 'x' -> this.isRunning = false;
+            }
+
+        if (this.lastCommand == 'r') {
+            // Use dummy values
+            this.preferredPrimary = "abc";
+            this.preferredSecondary = "xyz";
+        }
+
+        }
+
+        
+
+    
+    public void pickSecondaryEA() {
+        System.out.println("""
+                East Asian food today? Which type?
+                1 ~ Japanese
+                2 ~ Chinese
+                3 ~ Korean
+                4 ~ Vietnamese
+
+                r ~ I'm feeling lucky -- show me a random restaurant within this category
+
+                a ~ Show me all the restaurants in this category!
+
+                b ~ Reselect the primary category
+                """);
+
+                takeNewCommand();
+    switch (this.lastCommand) {
+        case '1' -> this.preferredSecondary = "Japanese";
+        case '2' -> this.preferredSecondary = "Chinese";
+        case '3' -> this.preferredSecondary = "Korean";
+        case '4' -> this.preferredSecondary = "Vietnamese";
+
+        case 'r' -> this.pickRandomRestaurantInPrimary();
+
+        case 'b' -> this.preferredPrimary = "";
+    }
+
+    if (this.lastCommand == 'r') {
+        return;
+    }
+
+    this.pickRestaurantsBySecondary();
+
+    }
+
+    public void pickSecondarySA() {
+        System.out.println("""
+                South Asian food today? Which type?
+                1 ~ Indian and Pakistani
+                2 ~ African
+                3 ~ Turkish and Greek
+                4 ~ Middle Eastern
+
+                r ~ I'm feeling lucky -- show me a random restaurant within this category
+
+                a ~ Show me all the restaurants in this category!
+
+                b ~ Reselect the primary category
+                """);
+
+                takeNewCommand();
+    switch (this.lastCommand) {
+        case '1' -> this.preferredSecondary = "Indian / Pakistani";
+        case '2' -> this.preferredSecondary = "African";
+        case '3' -> this.preferredSecondary = "Turkish / Greek";
+        case '4' -> this.preferredSecondary = "Middle Eastern";
+
+        case 'r' -> this.pickRandomRestaurantInPrimary();
+
+        // case 'a' -> (Pick all restaurants);
+
+        case 'b' -> this.preferredPrimary = "";
+    }
+
+    if (this.lastCommand == 'r') {
+        return;
+    }
+
+    this.pickRestaurantsBySecondary();
+
+    }
+
+    public void pickSecondaryAM() {
+        System.out.println("""
+                Food from the Americas today? Which type?
+                1 ~ Mexican
+                2 ~ American
+                3 ~ Brazilian
+                4 ~ Central American
+
+                r ~ I'm feeling lucky -- show me a random restaurant within this category
+
+                a ~ Show me all the restaurants in this category!
+
+                b ~ Reselect the primary category
+                """);
+
+                takeNewCommand();
+    switch (this.lastCommand) {
+        case '1' -> this.preferredSecondary = "Mexican";
+        case '2' -> this.preferredSecondary = "American";
+        case '3' -> this.preferredSecondary = "Brazilian";
+        case '4' -> this.preferredSecondary = "Central America";
+
+        case 'r' -> this.pickRandomRestaurantInPrimary();
+
+        case 'b' -> this.preferredPrimary = "";
+    }
+
+    if (this.lastCommand == 'r') {
+        return;
+    }
+
+    this.pickRestaurantsBySecondary();
+
+    }
+
+    public void pickSecondaryEU() {
+        System.out.println("""
+                European food today? Which type?
+                1 ~ French
+                2 ~ Italian
+                3 ~ Spanish
+                4 ~ British and Irish
+
+                r ~ I'm feeling lucky -- show me a random restaurant within this category
+
+                a ~ Show me all the restaurants in this category!
+
+                b ~ Reselect the primary category
+                """);
+
+        takeNewCommand();
+        switch (this.lastCommand) {
+            case '1' -> this.preferredSecondary = "French";
+            case '2' -> this.preferredSecondary = "Italian";
+            case '3' -> this.preferredSecondary = "Spanish";
+            case '4' -> this.preferredSecondary = "British / Irish";
+
+            case 'r' -> this.pickRandomRestaurantInPrimary();
+
+            case 'b' -> this.preferredPrimary = "";
+        }
+
+    if (this.lastCommand == 'r') {
+        return;
+    }
+
+    this.pickRestaurantsBySecondary();
+
+    }
+
+    public void showSelectedRestaurants() {
+        if (foundRestaurants.isEmpty()) {
+            System.out.println("""
+                Unfortunately, we couldn't find any restaurants :(
+                Would you like to...
+
+                1 ~ Change price range
+                2 ~ Return to primary category selection
+                3 ~ Return to secondary category selection
+            """);
+
+            takeNewCommand();
+
+            switch (this.lastCommand) {
+                case '1':
+                    this.preferredPriceRange = -1;
+                    break;
+                case '2':
+                    this.preferredSecondary = "";
+                    this.preferredPrimary = "";
+                    break;
+                case '3':
+                    this.preferredSecondary = "";
+                    break;
+                default:
+                    System.out.println("Invalid command; please type 1, 2, or 3 to select an action");
+                    break;
+            }
+        } else {
+
+            System.out.println("We found " + this.foundRestaurants.size() + " restaurants for you:\n");
+
+            for (Restaurant i : this.foundRestaurants) {
+                System.out.println(i.toString()); // Print out the short view of each restaurant
+            }
+
+            System.out.println("\nPick a restaurant by typing a number (e.g. the first restaurant in the list is 1), and we'll show you more details!");
+            System.out.println("""
+                If you don't think any of these places fit you, you can:
+
+                a ~ Change price range
+                b ~ Return to primary category selection
+                c ~ Return to secondary category selection
+            """);
+
+            takeNewCommand();
+
+            try {
+                if (this.lastCommand <= '9') {
+                    examineRestaurant(foundRestaurants.get(lastCommand - '1'));
+                } else {
+                    switch (this.lastCommand) {
+                        case 'a' -> this.preferredPriceRange = -1;
+                        case 'b' -> {
+                            this.preferredSecondary = "";
+                            this.preferredPrimary = "";
+                                }
+                        case 'c' -> this.preferredSecondary = "";
+                    }
+                }
+                
+            } catch (Exception e) {
+                System.out.println("Invalid command! Please enter a valid command.");
+            }
+
+        }
+    }
+
+    public void examineRestaurant(Restaurant r) {
+        System.out.println("Restaurant Summary\n");
+        System.out.println(r.getSummary());
+
+        System.out.println("""
+            Sounds good?
+
+            a ~ Yes, that's great!
+            b ~ No, back to restaurant list
+        """);
+
+        takeNewCommand();
+
+        switch (this.lastCommand) {
+            case 'a':
+                this.isRunning = false;
+                break;
+            case 'b':
+                break;
+            default:
+                System.out.println("Invalid command! Returning to restaurant list...");
+        }
+    }
+
 
     public static void main(String[] args) {
         RestaurantRunner r = new RestaurantRunner();
         r.initializeRestaurants();
         r.greet();
-        
-    }
-}
+
+        while (r.isRunning) {
+            if (r.preferredPriceRange < 0) {
+                r.pickPriceRange();
+            }
+
+            if (!r.isRunning) break;
+
+            else if (r.preferredPrimary.isEmpty()) {
+                r.pickPrimary();
+            }
+
+            if (!r.isRunning) break;
+
+            else if (r.preferredSecondary.isEmpty()) {
+                switch (r.preferredPrimary) {
+                    case "East Asian" -> r.pickSecondaryEA();
+                    case "South Asian" -> r.pickSecondarySA();
+                    case "American" -> r.pickSecondaryAM();
+                    case "European" -> r.pickSecondaryEU();
+                    default -> r.pickPrimary();
+                }
+            }
+
+            if (!r.isRunning) break;
+
+            r.showSelectedRestaurants();
+
+        } // While running
+
+        System.out.println("Thanks for using this program! Enjoy your food!");
+    } // Main
+} // Class
