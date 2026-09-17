@@ -506,7 +506,7 @@ public class RestaurantRunner {
                     case "South Asian" -> r.pickSecondarySA();
                     case "American" -> r.pickSecondaryAM();
                     case "European" -> r.pickSecondaryEU();
-                    default -> r.pickPrimary();
+                    default -> r.pickPrimary(); // Go back to the primary category selection if the primary category is invalid -- such as after using the random restaurant feature
                 }
             }
 
